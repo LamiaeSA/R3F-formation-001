@@ -17,8 +17,7 @@ function App() {
     return (
         <DataProvider data={data}>
             <Canvas >
-                <OrthographicCamera makeDefault zoom={8} near={-1000} far={1000} position={[0, 0, 2]}/>
-                {/*article design parent box */}
+                <OrthographicCamera makeDefault zoom={5} near={-1000} far={1000} position={[0, 0, 2]}/>
                 <MainArticle dimension={[20, 20, 10]} position={[0, 0, 0]}/>
                 <OrbitControls/>
                 <ambientLight intensity={1}/>

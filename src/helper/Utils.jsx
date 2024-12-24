@@ -1,4 +1,13 @@
- import {backId, doorId, leftSideId, rightSideId, scaleFactor} from "./Constants.jsx";
+ import {
+    backId, DIR_DEPTH,
+    DIR_HEIGHT, DIR_WIDTH,
+    doorId,
+    leftSideId,
+    rightSideId,
+    scaleFactor,
+    shortTrim, SIGN_NEGATIVE,
+    SIGN_POSITIVE
+} from "./Constants.jsx";
  import {useArticleData} from "./ArticleProvider.jsx";
 
 export const getArticleDimensions = (anglPrimMap) => {
@@ -8,7 +17,17 @@ export const getArticleDimensions = (anglPrimMap) => {
     return [articleWidth, articleHeight, articleDepth]
 }
 export function Utils() {
+
    const {anglZoneMap, anglPrimMap, anglElemMap, zoneGeometryMap} = useArticleData()
+
+    const isTrimShort = (elemTREEID) => {
+       const isStartTrimShort = anglElemMap.get(elemTREEID).STARTTRIM === shortTrim
+        const isEndTrimShort = anglElemMap.get(elemTREEID).ENDTRIM === shortTrim
+        const isTopTrimShort = anglElemMap.get(elemTREEID).TOPTRIM === shortTrim
+        const isBotTrimShort = anglElemMap.get(elemTREEID).BOTTRIM === shortTrim
+        return {isStartTrimShort : isStartTrimShort,isEndTrimShort:isEndTrimShort,isTopTrimShort:isTopTrimShort,isBotTrimShort:isBotTrimShort}
+
+    }
 
     const getMatThk =(TREEID) => {
         const doorThk =anglElemMap.get(doorId(TREEID))?.CPNAME ? 2 : 0
@@ -18,7 +37,6 @@ export function Utils() {
         const topShelfThk = anglZoneMap.get(TREEID).TOPSHELF ? 2 : 0
         const bottomShelfThk = anglZoneMap.get(TREEID).BOTSHELF ? 2 : 0
         const dividerThk = anglZoneMap.get(TREEID).DIVIDER ? 2 : 0
-        console.log('doorThk',doorThk,'rightSideThk',rightSideThk,'backThk',backThk,'leftSideThk',leftSideThk,'topShelfThk',topShelfThk,'bottomShelfThk',bottomShelfThk)
 
         return ({
             doorThk:doorThk,
@@ -38,6 +56,7 @@ export function Utils() {
         const isLeftSideDefined = !!anglElemMap.get(leftSideId(TREEID))?.CPNAME
         const isTopShelfDefined = !!anglZoneMap.get(TREEID).TOPSHELF
         const isBottomShelfDefined = !!anglZoneMap.get(TREEID).BOTSHELF
+        const isDividerDefined = !!anglZoneMap.get(TREEID).DIVIDER
          return (
              {
                  isDoorDefined : isDoorDefined,
@@ -45,7 +64,9 @@ export function Utils() {
                  isBackDefined : isBackDefined,
                  isLeftSideDefined : isLeftSideDefined,
                  isTopShelfDefined : isTopShelfDefined,
-                 isBottomShelfDefined : isBottomShelfDefined
+                 isBottomShelfDefined : isBottomShelfDefined,
+                 isDividerDefined : isDividerDefined
+
              }
          )
     }
@@ -71,10 +92,43 @@ export function Utils() {
     }
 
 
+    function insetHandler (TREEID,initDimensions,initPositions){
+        console.log('TREEIDFYILHYTR',TREEID)
+       const  [initWidth,initHeight,initDepth]=initDimensions
+        const [initX,initY,initZ] = initPositions
+        const insetLeft = scaleFactor * ( anglElemMap.get(leftSideId(TREEID))?.INSET ?? 0)
+        const insetRight= scaleFactor * ( anglElemMap.get(rightSideId(TREEID))?.INSET ?? 0)
+        const insetBack = scaleFactor * ( anglElemMap.get(backId(TREEID))?.INSET?? 0)
+        const width = initWidth - insetLeft - insetRight
+        const depth = initDepth - insetBack
+        const height = initHeight
+
+        const x = initX + insetLeft/2 - insetRight/2
+        const y = initY
+        const z = initZ + insetBack/2
+
+        console.log(insetLeft)
+        console.log(insetRight)
+        console.log(insetBack)
+        return(
+            {dimensions:[width,height,depth],
+            positions : [x,y,z]}
+        )
+   }
 
 
-
-
+    function linDivSetting (divDir,divElem){
+        if (divDir==='V') {
+            return {direction: DIR_HEIGHT, sign: SIGN_POSITIVE}
+        } else {
+            switch (divElem) {
+                case 0 : return {direction:DIR_WIDTH,sign:SIGN_POSITIVE}
+                case 2 : return {direction:DIR_WIDTH,sign:SIGN_NEGATIVE}
+                case 1 : return {direction:DIR_DEPTH,sign:SIGN_POSITIVE}
+                case 3 : return {direction:DIR_DEPTH,sign:SIGN_NEGATIVE}
+            }
+        }
+    }
 
 
 
@@ -89,6 +143,9 @@ export function Utils() {
         zoneGeometryMap,
         getMatThk,
         getRemainingDimensions,
-        isCpDefined
+        isCpDefined,
+        isTrimShort,
+        insetHandler,
+        linDivSetting
     }
 }

@@ -15,7 +15,7 @@ const Zone = ({TREEID}) => {
     const zoneGeometry = utils.zoneGeometryMap.get(TREEID)
     const dimension = zoneGeometry.dimensions
     const position = zoneGeometry.position
-    const {isDoorDefined, isLeftSideDefined, isRightSideDefined, isBackDefined, isTopShelfDefined, isBottomShelfDefined} = utils.isCpDefined(TREEID)
+    const {isDoorDefined, isLeftSideDefined, isRightSideDefined, isBackDefined,isDividerDefined, isTopShelfDefined, isBottomShelfDefined} = utils.isCpDefined(TREEID)
 
     return (
         <group position={position}>
@@ -29,10 +29,10 @@ const Zone = ({TREEID}) => {
                 </mesh>
             <ambientLight intensity={2}/>
             <OrbitControls/>
-            {
-                isLeftSideDefined &&
-                <LeftSide TREEID={TREEID} />
-            }
+            {/*{*/}
+            {/*    isLeftSideDefined &&*/}
+            {/*    <LeftSide TREEID={TREEID} />*/}
+            {/*}*/}
 
             {
                 isRightSideDefined &&
@@ -57,8 +57,11 @@ const Zone = ({TREEID}) => {
             {/*    isDoorDefined &&*/}
             {/*    <Division TREEID={TREEID} />*/}
             {/*}*/}
+            {
+                isDividerDefined &&
+                <Divider TREEID={TREEID}/>
+            }
 
-            <Divider TREEID={TREEID}/>
 
         </group>
     )
